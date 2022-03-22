@@ -10,7 +10,7 @@ export const getAuth = () => {
       .split("=")[1];
   }
 
-  return fetch("http://localhost:3001", {
+  return fetch("https://mern-stack-chat-app-1.herokuapp.com", {
     method: "GET",
     headers: new Headers({
       Authorization: cookieValue,
@@ -31,7 +31,7 @@ export const getContacts = () => {
       })
       .split("=")[1];
   }
-  return fetch("http://localhost:3001/chat/contacts", {
+  return fetch("https://mern-stack-chat-app-1.herokuapp.com/chat/contacts", {
     headers: new Headers({
       Authorization: cookieValue,
       "Content-Type": "application/json",
@@ -53,7 +53,7 @@ export const getMessages = (params, days) => {
       .split("=")[1];
   }
 
-  return fetch(`http://localhost:3001/chat/messages/${params}/${days}`, {
+  return fetch(`https://mern-stack-chat-app-1.herokuapp.com/chat/messages/${params}/${days}`, {
     method: "GET",
     headers: new Headers({
       Authorization: cookieValue,

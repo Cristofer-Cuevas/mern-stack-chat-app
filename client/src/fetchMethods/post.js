@@ -1,5 +1,5 @@
 export const loginPost = (userCredentials) => {
-  return fetch("http://localhost:3001", {
+  return fetch("https://mern-stack-chat-app-1.herokuapp.com", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -12,7 +12,7 @@ export const loginPost = (userCredentials) => {
 };
 
 export const signupPost = (userCredentials) => {
-  return fetch("http://localhost:3001/sign-up", {
+  return fetch("https://mern-stack-chat-app-1.herokuapp.com/sign-up", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
