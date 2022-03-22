@@ -1,31 +1,38 @@
-import React, { useEffect, useRef, useState, lazy, Suspense, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import ChatBox from "./ChatBox";
 import { Link, useParams, useNavigate } from "react-router-dom";
 
 import { useQuery } from "react-query";
 import { getContacts } from "../../fetchMethods/get.js";
 import { Routes, Route } from "react-router-dom";
+import io from "socket.io-client";
 
 // Styles
 import { Div } from "../styles/Contacts.styles.js";
 import { UsersBox } from "../styles/Contacts.styles.js";
 import userImage from "../styles/images/man-user-icon.png";
 import threeVertDots from "../styles/images/more_vert_black_24dp.svg";
-import io from "socket.io-client";
+import warningIcon from "../styles/images/warning.png";
 
-const ChatBox = lazy(() => import("./ChatBox"));
-
-const Contacts = (props) => {
-  const [messages, setMessages] = useState(null);
+const Contacts = () => {
   const [contactsFromIo, setContactsFromIo] = useState(null);
+  const [inputValue, setInputValue] = useState(null);
+  const [messages, setMessages] = useState(null);
+  const [btnValue, setBtnValue] = useState(null);
   const [socket, setSocket] = useState(null);
-
+  const lastMessages = useRef({});
+  const messageRead = useRef({});
+  const navigate = useNavigate();
+  const user = useParams();
+  let isUserConnected = false;
   const getInputValue = (message) => {
     socket.emit("message", { inputValue: message, to: user["*"], date: new Date() });
   };
 
   useEffect(() => {
+    //============================================//
+    // ----------------- Get Cookie as JWT ----------------- //
     let cookieValue;
-
     if (document.cookie) {
       cookieValue = document.cookie
         .split("; ")
@@ -35,16 +42,14 @@ const Contacts = (props) => {
         .split("=")[1];
     }
 
+    //============================================//
+    // -------------------- Socket State --------------------- //
     const socket = io("http://localhost:3001", {
       extraHeaders: {
         Authorization: cookieValue,
       },
     });
-
     setSocket(socket);
-    console.log("hola");
-    console.log("ohal");
-    console.log("another hola");
     socket.on("users connected", (data) => {
       setContactsFromIo(data);
     });
@@ -53,23 +58,11 @@ const Contacts = (props) => {
       setMessages(data);
     });
 
-    console.log("setting socket executed");
-
     return () => socket.disconnect();
   }, [setSocket]);
 
-  const lastMessages = useRef({});
-  const navigate = useNavigate();
-  let isUserConnected = false;
-
-  const [btnValue, setBtnValue] = useState(null);
-  const [inputValue, setInputValue] = useState(null);
-
-  const user = useParams();
-
-  const btnAllRef = useRef(null);
-  const divRef = useRef(null);
-
+  //============================================//
+  // -------------------- Requesting users --------------------//
   const { data } = useQuery("getContacts", () => getContacts().then((res) => res.json()), {
     onSuccess: (res) => {
       console.log(data);
@@ -80,7 +73,9 @@ const Contacts = (props) => {
     refetchOnWindowFocus: false,
   });
 
-  const { contacts } = usePersonilizedHook(contactsFromIo, data);
+  //============================================//
+  // ---------------------- User data ----------------------- //
+  const { contacts } = useUsersList(contactsFromIo, data);
 
   if (contacts) {
     const userConnected = contacts.filter((contact) => contact.isConnected === true && contact.contactName === user["*"]);
@@ -91,13 +86,10 @@ const Contacts = (props) => {
     }
   }
 
-  let contacts3 = [];
-
-  useEffect(() => {
-    divRef.current.classList.add("fade");
-  }, [divRef, btnAllRef]);
-
-  const filteredContact3 = contacts?.filter((contact) => {
+  //============================================//
+  // -------------------- Filtering users --------------------- //
+  let contactsToShow;
+  const filteredContact = contacts?.filter((contact) => {
     if (btnValue === "All") {
       return contacts;
     } else if (btnValue === "Offline") {
@@ -109,8 +101,8 @@ const Contacts = (props) => {
     }
   });
 
-  if (filteredContact3) {
-    contacts3 = filteredContact3;
+  if (filteredContact) {
+    contactsToShow = filteredContact;
   }
 
   const getFilterBtn = (filter) => {
@@ -122,14 +114,16 @@ const Contacts = (props) => {
   };
 
   if (inputValue) {
-    const filteredContacts = contacts3?.filter((contact) => contact.contactName.includes(inputValue));
+    const filteredContacts = contactsToShow?.filter((contact) => contact.contactName.includes(inputValue));
     if (filteredContacts) {
-      contacts3 = filteredContacts;
+      contactsToShow = filteredContacts;
     } else {
-      contacts3 = contacts;
+      contactsToShow = contacts;
     }
   }
 
+  //============================================//
+  // ------------ Setting message preview ------------- //
   const getUserMessage = useCallback(
     (username) => {
       if (messages?.sender === lastMessages.current[username]) {
@@ -146,6 +140,7 @@ const Contacts = (props) => {
           };
         }
       }
+      // ---------- Returning p tag with the message preview ----------- //
       if (lastMessages.current[username]?.username === username) {
         return <p className="messagePreview">{lastMessages.current[username].message}</p>;
       } else {
@@ -153,6 +148,28 @@ const Contacts = (props) => {
       }
     },
     [messages]
+  );
+
+  //============================================//
+  // ----- Notify the user about new messages ------ //
+  const getIfMessageIsRead = useCallback(
+    (username) => {
+      if (messageRead.current[user["*"]]?.username === user["*"]) {
+        delete messageRead.current[user["*"]];
+      } else {
+        if (messages?.sender === username && user["*"] !== username && messages?.sender !== messageRead.current[username]?.username) {
+          messageRead.current[username] = {
+            username: messages?.sender,
+            isMessageRead: false,
+          };
+        }
+      }
+
+      if (username === messageRead.current[username]?.username) {
+        return <img className="isMessageReadImg" src={warningIcon} alt="warning" />;
+      }
+    },
+    [messages, user]
   );
 
   const handleThreeDotsClick = (e) => {
@@ -172,7 +189,7 @@ const Contacts = (props) => {
   };
 
   return (
-    <Div ref={divRef} className="contactsContainer">
+    <Div className="contactsContainer">
       <div className="wrapper">
         <div className="search">
           <div className="inputAndMenuContainer">
@@ -198,11 +215,11 @@ const Contacts = (props) => {
 
         <div>
           <h2 className="title">Contacts</h2>
-          {!contacts3 ? (
+          {!contactsToShow ? (
             <p>Loading...</p>
           ) : (
             <UsersBox>
-              {contacts3?.map((contact, index) => {
+              {contactsToShow?.map((contact, index) => {
                 return (
                   <Link onClick={handleOnUserClick} to={contact?.contactName} key={index}>
                     <div className="userBox">
@@ -214,6 +231,7 @@ const Contacts = (props) => {
                         <span className="userName">{contact?.contactName}</span>
                         {getUserMessage(contact?.contactName) ?? <p className="messagePreview">{contact?.message}</p>}
                       </div>
+                      <div className="isMessageReadContainer">{getIfMessageIsRead(contact.contactName)}</div>
                     </div>
                   </Link>
                 );
@@ -222,11 +240,9 @@ const Contacts = (props) => {
           )}
         </div>
       </div>
-      <Suspense fallback={<p>loading</p>}>
-        <Routes>
-          <Route path=":username" element={<ChatBox messages={messages} getInputValue={getInputValue} isUserConnected={isUserConnected} setMessages={setMessages} />} />
-        </Routes>
-      </Suspense>
+      <Routes>
+        <Route path=":username" element={<ChatBox messages={messages} getInputValue={getInputValue} isUserConnected={isUserConnected} setMessages={setMessages} />} />
+      </Routes>
     </Div>
   );
 };
@@ -237,7 +253,6 @@ const Button = ({ filter, getFilterBtn }) => {
   const onClickFilterBtn = (e) => {
     Array.from(e.target.parentElement.children).forEach((btn) => {
       btn.classList.remove("btnClicked");
-
       e.target.classList.add("btnClicked");
     });
 
@@ -251,22 +266,27 @@ const Button = ({ filter, getFilterBtn }) => {
   );
 };
 
-const usePersonilizedHook = (contactsFromIo, data) => {
+const useUsersList = (contactsFromIo, data) => {
   const [contactsToShow, setContactsToShow] = useState([]);
 
   useEffect(() => {
     let contacts = [];
 
     if (data && contactsFromIo) {
-      for (let data2 of data.contacts) {
+      for (let data2 of data?.contacts) {
+        //============================================//
+        // ------------- If the user is connected -------------- //
         if (contactsFromIo && contactsFromIo.some((contact) => contact === data2.username)) {
           contacts.push({ contactName: data2.username, message: data2.message, isConnected: true });
+          //============================================//
+          // --------- Else the user is Disconnected ---------- //
         } else {
           contacts.push({ contactName: data2.username, message: data2.message, isConnected: false });
         }
       }
     }
-
+    //==========================================================//
+    // Setting contactsToShow only when the array is fully iterated //
     if (contacts?.length === data?.contacts?.length) {
       setContactsToShow(contacts);
     }

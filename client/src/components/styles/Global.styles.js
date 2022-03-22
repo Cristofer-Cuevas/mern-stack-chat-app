@@ -35,8 +35,11 @@ input {
 }
 
 button {
+	cursor: pointer;
 background-color: transparent;
 border: none;
+        box-shadow: none;
+
 }
 
 `;

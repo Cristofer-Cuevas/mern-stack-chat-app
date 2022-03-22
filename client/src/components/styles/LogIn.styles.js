@@ -30,15 +30,20 @@ export const MainLogIn = styled.main`
 `;
 
 export const Form = styled.form`
+  position: relative;
   width: 90%;
   max-width: 400px;
 
   .inputUsername {
-    background-image: url(${personIcon});
+    input {
+      background-image: url(${personIcon});
+    }
   }
 
   .inputPassword {
-    background-image: url(${lockIcon});
+    input {
+      background-image: url(${lockIcon});
+    }
   }
 
   input:focus {
@@ -49,13 +54,8 @@ export const Form = styled.form`
   .inputPassword,
   .inputUsername {
     width: 100%;
-    background-position: 1rem center;
-    background-color: #f5f5f5;
-    background-repeat: no-repeat;
-    background-size: 1.7rem;
     border-radius: 0.3rem;
-
-    margin-bottom: 1rem;
+    height: 5.5rem;
 
     input {
       font-size: 1rem;
@@ -67,6 +67,11 @@ export const Form = styled.form`
       border-radius: 0.3rem;
       border: 2px solid transparent;
       transition: border-color 0.2s ease-in-out;
+
+      background-position: 1rem center;
+      background-color: #f5f5f5;
+      background-repeat: no-repeat;
+      background-size: 1.7rem;
     }
   }
 
@@ -80,5 +85,15 @@ export const Form = styled.form`
     font-size: 1.3rem;
     font-weight: 700;
     cursor: pointer;
+  }
+
+  .errorMessage {
+    position: absolute;
+    right: 0.5rem;
+    margin: 0;
+
+    color: hsl(0, 100%, 74%);
+    font-size: 0.8rem;
+    font-weight: 600;
   }
 `;
