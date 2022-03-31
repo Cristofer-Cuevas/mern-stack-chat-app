@@ -35,15 +35,6 @@ controllers.getMessages = async (req, res) => {
     return new Date(a.date) - new Date(b.date);
   });
 
-  // Changing entire date to just hour/min
-  messages.forEach((message) => {
-    const date = new Date(message.date);
-
-    const time = date.getHours() + ":" + date.getMinutes();
-
-    message.date = time;
-  });
-
   res.json({ messages: messages, requester: username });
 };
 

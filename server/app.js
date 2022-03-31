@@ -66,11 +66,7 @@ io.on("connection", (socket) => {
       date: data.date,
     });
 
-    const date = new Date(data.date);
-
-    const time = date.getHours() + ":" + date.getMinutes();
-
-    socket.to(data.to).emit("message", { _id: false, message: data.inputValue, date: time, sender: socket.request.user.username, recipient: data.to });
+    socket.to(data.to).emit("message", { _id: false, message: data.inputValue, date: data.date, sender: socket.request.user.username, recipient: data.to });
   });
 });
 dbConnection(() => {

@@ -45,6 +45,7 @@ const ChatBox = (props) => {
       await getMessages(username)
         .then((res) => res.json())
         .then((res) => {
+          console.log(res);
           setData(res);
           scrollToBottom("auto");
         });
@@ -130,11 +131,14 @@ const ChatBox = (props) => {
               </p>
             )}{" "}
             {data.messages.map((message, index) => {
+              const date = new Date(message.date);
+              const time = date.getHours() + ":" + date.getMinutes();
+
               return message.sender === data.requester ? (
                 <div key={message._id || index} className="messageContainer me">
                   <div className="messageAndDateContainerMe">
                     <p className="message">{message.message}</p>
-                    <span className="date">{message.date}</span>
+                    <span className="date">{time}</span>
                   </div>
                 </div>
               ) : (
@@ -144,7 +148,7 @@ const ChatBox = (props) => {
                   </div>
                   <div className="messageAndDateContainer">
                     <p className="message">{message.message}</p>
-                    <span className="date">{message.date}</span>
+                    <span className="date">{time}</span>
                   </div>
                 </div>
               );
