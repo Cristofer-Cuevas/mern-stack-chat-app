@@ -30,15 +30,16 @@ controllers.getMessages = async (req, res) => {
     .limit(5);
 
   // Sorting the array of messages by the date. To the oldest to the newest.
+
   messages.sort((a, b) => {
-    return new Date(a.createdAt) - new Date(b.createdAt);
+    return new Date(a.date) - new Date(b.date);
   });
 
   // Changing entire date to just hour/min
   messages.forEach((message) => {
-    const createdAt = new Date(message.createdAt);
+    const date = new Date(message.date);
 
-    const time = createdAt.getHours() + ":" + createdAt.getMinutes();
+    const time = date.getHours() + ":" + date.getMinutes();
 
     message.date = time;
   });

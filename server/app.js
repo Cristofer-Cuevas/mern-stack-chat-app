@@ -66,7 +66,7 @@ io.on("connection", (socket) => {
       date: data.date,
     });
 
-    const date = new Date();
+    const date = new Date(data.date);
 
     const time = date.getHours() + ":" + date.getMinutes();
 
@@ -76,6 +76,6 @@ io.on("connection", (socket) => {
 dbConnection(() => {
   app.use(routes);
   server.listen(PORT, () => {
-    console.log("server running");
+    console.log(`Server running on port ${PORT}`);
   });
 });

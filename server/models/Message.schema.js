@@ -5,8 +5,6 @@ const messageSchema = new mongoose.Schema({
   recipient: String,
   message: String,
   date: String,
-
-  createdAt: { type: Date, default: Date.now },
 });
 
 const Message = mongoose.model("Message", messageSchema);
