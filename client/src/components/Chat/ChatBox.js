@@ -24,10 +24,8 @@ const ChatBox = (props) => {
   const onSendMessageClick = (e) => {
     e.preventDefault();
     if (inputRef.current.value) {
-      const date = new Date();
-      const time = date.getHours() + ":" + date.getMinutes();
       props.getInputValue(inputRef.current.value);
-      const message = { _id: null, recipient: username, message: inputRef.current.value, username, sender: data.requester, date: time };
+      const message = { _id: null, recipient: username, message: inputRef.current.value, username, sender: data.requester, date: new Date() };
       setData((data) => {
         return { messages: [...data.messages, message], requester: data.requester };
       });
