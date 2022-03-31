@@ -44,7 +44,7 @@ const Contacts = () => {
 
     //============================================//
     // -------------------- Socket State --------------------- //
-    const socket = io("http://localhost:3001", {
+    const socket = io("https://mern-stack-chat-app-1.herokuapp.com", {
       extraHeaders: {
         Authorization: cookieValue,
       },
