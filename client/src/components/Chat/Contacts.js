@@ -26,7 +26,7 @@ const Contacts = () => {
   const user = useParams();
   let isUserConnected = false;
   const getInputValue = (message) => {
-    socket.emit("message", { inputValue: message, to: user["*"], date: new Date().toString() });
+    socket.emit("message", { inputValue: message, to: user["*"], date: new Date() });
   };
 
   useEffect(() => {
