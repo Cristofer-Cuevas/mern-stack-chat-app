@@ -26,7 +26,7 @@ const Contacts = () => {
   const user = useParams();
   let isUserConnected = false;
   const getInputValue = (message) => {
-    socket.emit("message", { inputValue: message, to: user["*"], date: new Date() });
+    socket.emit("message", { inputValue: message, to: user["*"], date: new Date().toString() });
   };
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const Contacts = () => {
 
     //============================================//
     // -------------------- Socket State --------------------- //
-    const socket = io("https://mern-stack-chat-app-1.herokuapp.com/", {
+    const socket = io("http://localhost:3001", {
       extraHeaders: {
         Authorization: cookieValue,
       },
