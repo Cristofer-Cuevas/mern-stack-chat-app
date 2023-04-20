@@ -10,7 +10,7 @@ export const loginPost = (userCredentials) => {
         }),
     });
 };
-
+// signup method
 export const signupPost = (userCredentials) => {
     return fetch("https://chatapp-x49l.onrender.com/sign-up", {
         method: "POST",
